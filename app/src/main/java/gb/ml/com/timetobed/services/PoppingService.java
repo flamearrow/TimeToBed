@@ -1,11 +1,14 @@
 package gb.ml.com.timetobed.services;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -25,6 +28,8 @@ public class PoppingService extends IntentService {
         super("PoppingService");
     }
 
+    private int mStartHour, mStartMin, mEndHour, mEndMin;
+
     /**
      * This method is invoked on the worker thread with a request to process.
      * Only one Intent is processed at a time, but the processing happens on a
@@ -39,20 +44,17 @@ public class PoppingService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
-        final int startHour = intent
-                .getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
-        final int startMin = intent
-                .getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        mStartHour = intent.getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+        mStartMin = intent.getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        mEndHour = intent.getIntExtra(TimePickerActivity.ENDTIME + TimePickerFragment.HOUR, 0);
+        mEndMin = intent.getIntExtra(TimePickerActivity.ENDTIME + TimePickerFragment.MIN, 0);
 
-        final int endHour = intent
-                .getIntExtra(TimePickerActivity.ENDTIME + TimePickerFragment.HOUR, 0);
-        final int endMin = intent
-                .getIntExtra(TimePickerActivity.ENDTIME + TimePickerFragment.MIN, 0);
-        Log.d("popping", "startHour: " + startHour + ", startMin: " + startMin);
-        Log.d("popping", "endHour: " + endHour + ", endMin: " + endMin);
+        Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
+        Log.d("popping", "endHour: " + mEndHour + ", endMin: " + mEndMin);
+
         for (int in = 0; in < 5; in++) {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -71,7 +73,7 @@ public class PoppingService extends IntentService {
             NotificationManager notificationManager = (NotificationManager) getApplication()
                     .getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(0, n);
-            Log.d("notif", "notification end");
+            Log.d("notif", "notification " + in + " end");
         }
         endPopping();
     }
@@ -79,5 +81,30 @@ public class PoppingService extends IntentService {
     private void endPopping() {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(
                 new Intent(POPPING_DONE));
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+
+        restartServiceIntent
+                .putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
+        restartServiceIntent
+                .putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
+        restartServiceIntent
+                .putExtra(TimePickerActivity.ENDTIME + TimePickerFragment.HOUR, mEndHour);
+        restartServiceIntent.putExtra(TimePickerActivity.ENDTIME + TimePickerFragment.MIN, mEndMin);
+        restartServiceIntent.setPackage(getPackageName());
+
+        PendingIntent restartServicePendingIntent = PendingIntent
+                .getService(getApplicationContext(), 1, restartServiceIntent,
+                        PendingIntent.FLAG_ONE_SHOT);
+        // alarm manager allows your application to be executed in the future
+        AlarmManager alarmService = (AlarmManager) getApplicationContext()
+                .getSystemService(Context.ALARM_SERVICE);
+        alarmService.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 1000,
+                restartServicePendingIntent);
     }
 }
