@@ -8,7 +8,7 @@
     <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
               android:id="@+id/startTime"/>
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/end_time" android:onClick="pickEndTime"/>
+            android:text="@string/last_time" android:onClick="pickLastTime"/>
     <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
               android:id="@+id/endTime"/>
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"

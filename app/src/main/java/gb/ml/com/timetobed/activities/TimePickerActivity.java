@@ -1,9 +1,5 @@
 package gb.ml.com.timetobed.activities;
 
-import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +12,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import gb.ml.com.timetobed.R;
-import gb.ml.com.timetobed.fragments.GoToBedAlertFragment;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
 import gb.ml.com.timetobed.services.PoppingService;
 
@@ -27,7 +22,7 @@ public class TimePickerActivity extends FragmentActivity {
 
     public static final String STARTTIME = "startTime";
 
-    public static final String ENDTIME = "endTime";
+    public static final String LASTTIME = "last";
 
     private TextView startTimeTV, endTimeTV;
 
@@ -75,7 +70,7 @@ public class TimePickerActivity extends FragmentActivity {
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mStartReceiver, new IntentFilter(STARTTIME));
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mEndReceiver, new IntentFilter(ENDTIME));
+                .registerReceiver(mEndReceiver, new IntentFilter(LASTTIME));
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mPoppingServiceReceiver, new IntentFilter(
                         PoppingService.POPPING_DONE));
@@ -101,10 +96,11 @@ public class TimePickerActivity extends FragmentActivity {
     public void pickStartTime(View v) {
         TimePickerFragment startTPF = new TimePickerFragment();
         startTPF.setStartTimer(true);
+        startTPF.setPreSetNow(true);
         startTPF.show(getFragmentManager(), "startTimePicker");
     }
 
-    public void pickEndTime(View v) {
+    public void pickLastTime(View v) {
         TimePickerFragment endTPF = new TimePickerFragment();
         endTPF.setStartTimer(false);
         endTPF.show(getFragmentManager(), "endTimePicker");
@@ -114,9 +110,8 @@ public class TimePickerActivity extends FragmentActivity {
         final Intent i = new Intent(this, PoppingService.class);
         i.putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
         i.putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
-        i.putExtra(TimePickerActivity.ENDTIME + TimePickerFragment.HOUR, mEndHour);
-        i.putExtra(TimePickerActivity.ENDTIME + TimePickerFragment.MIN, mEndMin);
+        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mEndHour);
+        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mEndMin);
         startService(i);
-        Log.d("popping", "start popping");
     }
 }

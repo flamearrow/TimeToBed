@@ -24,12 +24,16 @@ public class TimePickerFragment extends DialogFragment
 
     private boolean mStart = false;
 
+    private boolean mPreSetNow = false;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-
+        int hour = 0, minute = 0;
+        if (mPreSetNow) {
+            final Calendar c = Calendar.getInstance();
+            hour = c.get(Calendar.HOUR_OF_DAY);
+            minute = c.get(Calendar.MINUTE);
+        }
         return new TimePickerDialog(getActivity(), this, hour, minute,
                 true);
     }
@@ -41,7 +45,7 @@ public class TimePickerFragment extends DialogFragment
      */
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Intent i = new Intent(mStart ? TimePickerActivity.STARTTIME : TimePickerActivity.ENDTIME);
+        Intent i = new Intent(mStart ? TimePickerActivity.STARTTIME : TimePickerActivity.LASTTIME);
         i.putExtra(HOUR, hourOfDay);
         i.putExtra(MIN, minute);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(i);
@@ -49,6 +53,10 @@ public class TimePickerFragment extends DialogFragment
 
     public void setStartTimer(boolean isStart) {
         mStart = isStart;
+    }
+
+    public void setPreSetNow(boolean preSetNow) {
+        mPreSetNow = preSetNow;
     }
 
 
