@@ -98,7 +98,7 @@ public class PoppingService extends IntentService {
     private void shout() {
         Log.d("shout", "begin to shout");
         final Intent i = new Intent(getApplication(), MainActivity.class);
-        final PendingIntent pi = PendingIntent.getActivity(getApplication(), 0, null, 0);
+        final PendingIntent pi = PendingIntent.getActivity(getApplication(), 0, i, 0);
         Notification n = new Notification.Builder(getApplication())
                 .setContentTitle("Go To Bed: " + mCount++)
                 .setContentText("Otherwise tomorrow will suck!")
