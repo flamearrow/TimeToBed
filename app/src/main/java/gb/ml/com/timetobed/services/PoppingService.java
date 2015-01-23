@@ -9,11 +9,17 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Random;
 
 import gb.ml.com.timetobed.R;
 import gb.ml.com.timetobed.activities.MainActivity;
@@ -76,16 +82,16 @@ public class PoppingService extends IntentService {
             Log.d("time", "now" + now + " is within range");
         }
 
-        while(!(now.before(start) || now.after(end))) {
+        while (!(now.before(start) || now.after(end))) {
             KeyguardManager kgMgr =
                     (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-            if(kgMgr.inKeyguardRestrictedInputMode()) {
+            if (kgMgr.inKeyguardRestrictedInputMode()) {
                 continue;
             }
 
             shout();
             try {
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -97,20 +103,20 @@ public class PoppingService extends IntentService {
 
     private void shout() {
         Log.d("shout", "begin to shout");
-        final Intent i = new Intent(getApplication(), MainActivity.class);
-        final PendingIntent pi = PendingIntent.getActivity(getApplication(), 0, i, 0);
-        Notification n = new Notification.Builder(getApplication())
-                .setContentTitle("Go To Bed: " + mCount++)
-                .setContentText("Otherwise tomorrow will suck!")
-                .setContentIntent(pi).setAutoCancel(true)
-                .setSmallIcon(R.drawable.ic_launcher).setSound(
-                        RingtoneManager
-                                .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .getNotification();
-
-        NotificationManager notificationManager = (NotificationManager) getApplication()
-                .getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, n);
+        final String msg = "Go To Bed: " + mCount++ + ", otherwise tomorrow will suck!";
+        new Handler(getApplicationContext().getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast t = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
+                Display display = ((WindowManager) getApplicationContext().getSystemService(
+                        Context.WINDOW_SERVICE)).getDefaultDisplay();
+                Random r = new Random();
+                int xOffset = (int) (r.nextFloat() * display.getWidth());
+                int yOffset = (int) (r.nextFloat() * display.getHeight());
+                t.setGravity(Gravity.TOP | Gravity.CENTER, 0, yOffset);
+                t.show();
+            }
+        });
     }
 
     private void endPopping() {
