@@ -2,6 +2,7 @@ package gb.ml.com.timetobed.services;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -76,6 +77,12 @@ public class PoppingService extends IntentService {
         }
 
         while(!(now.before(start) || now.after(end))) {
+            KeyguardManager kgMgr =
+                    (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+            if(kgMgr.inKeyguardRestrictedInputMode()) {
+                continue;
+            }
+
             shout();
             try {
                 Thread.sleep(1000);
@@ -91,7 +98,7 @@ public class PoppingService extends IntentService {
     private void shout() {
         Log.d("shout", "begin to shout");
         final Intent i = new Intent(getApplication(), MainActivity.class);
-        final PendingIntent pi = PendingIntent.getActivity(getApplication(), 0, i, 0);
+        final PendingIntent pi = PendingIntent.getActivity(getApplication(), 0, null, 0);
         Notification n = new Notification.Builder(getApplication())
                 .setContentTitle("Go To Bed: " + mCount++)
                 .setContentText("Otherwise tomorrow will suck!")
