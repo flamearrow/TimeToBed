@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -56,6 +57,17 @@ public class PoppingService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
+        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                MODE_MULTI_PROCESS);
+        Log.d("sp", "start getting sp from service");
+        Log.d("sp",
+                "startHr" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
+        Log.d("sp",
+                "startMin" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
+        Log.d("sp", "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
+        Log.d("sp", "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
+        Log.d("sp", "end getting sp");
+
         mStartHour = intent.getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
         mStartMin = intent.getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
         mLastHour = intent.getIntExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
@@ -82,21 +94,21 @@ public class PoppingService extends IntentService {
             Log.d("time", "now" + now + " is within range");
         }
 
-        while (!(now.before(start) || now.after(end))) {
-            KeyguardManager kgMgr =
-                    (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-            if (kgMgr.inKeyguardRestrictedInputMode()) {
-                continue;
-            }
-
-            shout();
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            now = Calendar.getInstance();
-        }
+//        while (!(now.before(start) || now.after(end))) {
+//            KeyguardManager kgMgr =
+//                    (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+//            if (kgMgr.inKeyguardRestrictedInputMode()) {
+//                continue;
+//            }
+//
+//            shout();
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            now = Calendar.getInstance();
+//        }
 
         endPopping();
     }
@@ -111,7 +123,6 @@ public class PoppingService extends IntentService {
                 Display display = ((WindowManager) getApplicationContext().getSystemService(
                         Context.WINDOW_SERVICE)).getDefaultDisplay();
                 Random r = new Random();
-                int xOffset = (int) (r.nextFloat() * display.getWidth());
                 int yOffset = (int) (r.nextFloat() * display.getHeight());
                 t.setGravity(Gravity.TOP | Gravity.CENTER, 0, yOffset);
                 t.show();

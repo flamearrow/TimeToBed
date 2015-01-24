@@ -4,13 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import gb.ml.com.timetobed.R;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
@@ -27,7 +27,9 @@ public class TimePickerActivity extends FragmentActivity {
 
     private TextView startTimeTV, endTimeTV;
 
-    private int mStartHour, mStartMin, mEndHour, mEndMin;
+    private int mStartHour, mStartMin, mLastHour, mLastMin;
+
+    public static String SHAREDPREFNAME = "TimeToBedSharedPref";
 
     private BroadcastReceiver mStartReceiver = new BroadcastReceiver() {
         @Override
@@ -52,8 +54,8 @@ public class TimePickerActivity extends FragmentActivity {
             final int min = intent.getIntExtra(TimePickerFragment.MIN, 0);
             Log.d("mlgb", "hour: " + hour);
             Log.d("mlgb", "min: " + min);
-            mEndHour = hour;
-            mEndMin = min;
+            mLastHour = hour;
+            mLastMin = min;
             endTimeTV.setText("" + hour + " : " + min);
         }
     };
@@ -108,11 +110,33 @@ public class TimePickerActivity extends FragmentActivity {
     }
 
     public void startShout(View v) {
+        Log.d("sp", "mStartHour: " + mStartHour + ", mStartMin: " + mStartMin);
+        Log.d("sp", "mLastHour: " + mLastHour + ", mLastMin: " + mLastMin);
+        SharedPreferences sp = getSharedPreferences(SHAREDPREFNAME, MODE_MULTI_PROCESS);
+        SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
+        spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
+        spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
+        spEditor.commit();
+        Log.d("sp", "sharedPref written");
+
+
+//        Log.d("sp", "start getting sp from activity");
+//        Log.d("sp",
+//                "startHr" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
+//        Log.d("sp",
+//                "startMin" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
+//        Log.d("sp", "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
+//        Log.d("sp", "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
+//        Log.d("sp", "end getting sp");
+
+
         final Intent i = new Intent(this, PoppingService.class);
         i.putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
         i.putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
-        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mEndHour);
-        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mEndMin);
+        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
+        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
         startService(i);
     }
 }
