@@ -121,7 +121,6 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.commit();
         Log.d("sp", "sharedPref written");
 
-
 //        Log.d("sp", "start getting sp from activity");
 //        Log.d("sp",
 //                "startHr" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
@@ -131,12 +130,7 @@ public class TimePickerActivity extends FragmentActivity {
 //        Log.d("sp", "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
 //        Log.d("sp", "end getting sp");
 
-
         final Intent i = new Intent(this, PoppingService.class);
-        i.putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
-        i.putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
-        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
-        i.putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
         startService(i);
     }
 }

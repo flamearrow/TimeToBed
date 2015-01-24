@@ -68,10 +68,10 @@ public class PoppingService extends IntentService {
         Log.d("sp", "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
         Log.d("sp", "end getting sp");
 
-        mStartHour = intent.getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
-        mStartMin = intent.getIntExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
-        mLastHour = intent.getIntExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
-        mLastMin = intent.getIntExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
+        mStartHour = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+        mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
+        mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
         mCount = intent.getIntExtra(COUNT, 0);
 
         Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
@@ -94,21 +94,21 @@ public class PoppingService extends IntentService {
             Log.d("time", "now" + now + " is within range");
         }
 
-//        while (!(now.before(start) || now.after(end))) {
-//            KeyguardManager kgMgr =
-//                    (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-//            if (kgMgr.inKeyguardRestrictedInputMode()) {
-//                continue;
-//            }
-//
-//            shout();
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            now = Calendar.getInstance();
-//        }
+        while (!(now.before(start) || now.after(end))) {
+            KeyguardManager kgMgr =
+                    (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+            if (kgMgr.inKeyguardRestrictedInputMode()) {
+                continue;
+            }
+
+            shout();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            now = Calendar.getInstance();
+        }
 
         endPopping();
     }
