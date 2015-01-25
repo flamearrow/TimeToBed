@@ -109,7 +109,7 @@ public class TimePickerActivity extends FragmentActivity {
         endTPF.show(getFragmentManager(), "endTimePicker");
     }
 
-    public void startShout(View v) {
+    public void updatePref(View v) {
         Log.d("sp", "mStartHour: " + mStartHour + ", mStartMin: " + mStartMin);
         Log.d("sp", "mLastHour: " + mLastHour + ", mLastMin: " + mLastMin);
         SharedPreferences sp = getSharedPreferences(SHAREDPREFNAME, MODE_MULTI_PROCESS);
@@ -119,7 +119,7 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
         spEditor.commit();
-        Log.d("sp", "sharedPref written");
+        Log.d("sp", "sharedPref updated");
 
 //        Log.d("sp", "start getting sp from activity");
 //        Log.d("sp",
@@ -130,7 +130,7 @@ public class TimePickerActivity extends FragmentActivity {
 //        Log.d("sp", "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
 //        Log.d("sp", "end getting sp");
 
-        final Intent i = new Intent(this, PoppingService.class);
-        startService(i);
+//        final Intent i = new Intent(this, PoppingService.class);
+//        startService(i);
     }
 }

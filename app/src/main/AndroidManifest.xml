@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="gb.ml.com.timetobed">
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
     <application
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher"
@@ -16,10 +16,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity android:name=".activities.MainActivity"/>
+        <receiver android:name=".receivers.AutoStartReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
         <service android:name=".services.PoppingService" android:process=":popping_process"
                  android:icon="@drawable/ic_launcher" android:label="@string/popping_service"/>
+        <service android:name=".services.ShoutingService" android:enabled="true"
+                 android:process=":shouting_process" android:label="@string/shouting_service"/>
     </application>
-
 </manifest>
