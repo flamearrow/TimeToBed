@@ -1,7 +1,6 @@
 package gb.ml.com.timetobed.activities;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -123,12 +122,16 @@ public class TimePickerActivity extends FragmentActivity {
         Log.d("sp", "sharedPref updated");
 
         // check if shouting service is up, if not start it
-//        final Intent i = new Intent(this, ShoutingService.class);
-//        ComponentName cn = startService(i);
-//        if(cn != null) {
-//            Log.d("service", "ShoutingService already started: " + cn);
-//        } else {
-//            Log.d("service", "ShoutingService not yet started.");
-//        }
+        Log.d("service", "Shouting: " + isShouting());
+        if (!isShouting()) {
+            Log.d("service", "Restart shouting service.");
+            startService(new Intent(this, ShoutingService.class));
+        }
+    }
+
+    private boolean isShouting() {
+        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                MODE_MULTI_PROCESS);
+        return sp.getBoolean("SHOUTING", false);
     }
 }

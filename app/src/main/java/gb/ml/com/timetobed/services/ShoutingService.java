@@ -28,6 +28,22 @@ import gb.ml.com.timetobed.fragments.TimePickerFragment;
  */
 public class ShoutingService extends Service {
 
+    public static String SHOUTING = "SHOUTING";
+
+    public boolean isShouting() {
+        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                MODE_MULTI_PROCESS);
+        return sp.getBoolean("SHOUTING", false);
+    }
+
+    public void setShouting(boolean val) {
+        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                MODE_MULTI_PROCESS);
+        SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putBoolean(SHOUTING, val);
+        spEditor.commit();
+    }
+
     private int mStartHour, mStartMin, mLastHour, mLastMin, mCount;
 
     public static final String COUNT = "count";
@@ -37,7 +53,8 @@ public class ShoutingService extends Service {
     @Override
     public void onDestroy() {
         Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
-        Log.d("autostart", "shouting service onDestroy");
+        Log.d("service", "flipping SHOUTING from " + isShouting() + " to false");
+        setShouting(false);
     }
 
     @Override
@@ -47,6 +64,8 @@ public class ShoutingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d("service", "flipping SHOUTING from " + isShouting() + " to true");
+        setShouting(true);
         final int counter = intent.getIntExtra(COUNT, 0);
         new Thread() {
             public void run() {
@@ -59,20 +78,21 @@ public class ShoutingService extends Service {
                     }
                     SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                             MODE_MULTI_PROCESS);
-                    Log.d("sp", "start getting sp from service");
-                    Log.d("sp",
-                            "startHr" + sp
-                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
-                    Log.d("sp",
-                            "startMin" + sp
-                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
-                    Log.d("sp",
-                            "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
-                    Log.d("sp",
-                            "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
-                    Log.d("sp", "end getting sp");
+//                    Log.d("sp", "start getting sp from service");
+//                    Log.d("sp",
+//                            "startHr" + sp
+//                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
+//                    Log.d("sp",
+//                            "startMin" + sp
+//                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
+//                    Log.d("sp",
+//                            "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
+//                    Log.d("sp",
+//                            "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
+//                    Log.d("sp", "end getting sp");
 
-                    mStartHour = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+                    mStartHour = sp
+                            .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
                     mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
                     mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
                     mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
