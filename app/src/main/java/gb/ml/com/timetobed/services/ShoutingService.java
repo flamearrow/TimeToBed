@@ -1,6 +1,7 @@
 package gb.ml.com.timetobed.services;
 
 import android.app.AlarmManager;
+import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -16,6 +17,7 @@ import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import java.util.Calendar;
 import java.util.Random;
 
 import gb.ml.com.timetobed.activities.TimePickerActivity;
@@ -75,11 +77,46 @@ public class ShoutingService extends Service {
             Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
             Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
             Log.d("popping", "mCount: " + mCount);
+
+            Calendar start = Calendar.getInstance();
+            start.set(Calendar.HOUR_OF_DAY, mStartHour);
+            start.set(Calendar.MINUTE, mStartMin);
+
+            Calendar end = (Calendar) start.clone();
+            end.add(Calendar.HOUR, mLastHour);
+            end.add(Calendar.MINUTE, mLastMin);
+
+            Calendar now = Calendar.getInstance();
+
+            if (now.before(start) || now.after(end)) {
+                Log.d("time", "now" + now + " is out of range");
+            } else {
+                Log.d("time", "now" + now + " is within range");
+            }
+
+            while (!(now.before(start) || now.after(end))) {
+                KeyguardManager kgMgr =
+                        (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                if (kgMgr.inKeyguardRestrictedInputMode()) {
+                    continue;
+                }
+
+                shout();
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                now = Calendar.getInstance();
+            }
+
+            endPopping();
+
         }
     }
 
     private void shout() {
-        Log.d("shout", "begin to shout");
+        Log.d("shout", "begin to shout: " + mCount);
         final String msg = "Go To Bed: " + mCount++ + ", otherwise tomorrow will suck!";
         new Handler(getApplicationContext().getMainLooper()).post(new Runnable() {
             @Override
@@ -96,6 +133,16 @@ public class ShoutingService extends Service {
     }
 
     private void endPopping() {
+        // should clear sharedPf here
+        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                MODE_MULTI_PROCESS);
+        SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
+        spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
+        spEditor.commit();
+        Log.d("sp", "sharedPref cleared");
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(
                 new Intent(POPPING_DONE));
     }

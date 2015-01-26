@@ -1,6 +1,7 @@
 package gb.ml.com.timetobed.activities;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -121,16 +122,13 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.commit();
         Log.d("sp", "sharedPref updated");
 
-//        Log.d("sp", "start getting sp from activity");
-//        Log.d("sp",
-//                "startHr" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
-//        Log.d("sp",
-//                "startMin" + sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
-//        Log.d("sp", "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
-//        Log.d("sp", "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
-//        Log.d("sp", "end getting sp");
-
-//        final Intent i = new Intent(this, PoppingService.class);
-//        startService(i);
+        // check if shouting service is up, if not start it
+        final Intent i = new Intent(this, PoppingService.class);
+        ComponentName cn = startService(i);
+        if(cn != null) {
+            Log.d("service", "PoppingService already started: " + cn);
+        } else {
+            Log.d("service", "PoppingService not yet started.");
+        }
     }
 }
