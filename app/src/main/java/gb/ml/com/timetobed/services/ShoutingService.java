@@ -78,7 +78,7 @@ public class ShoutingService extends Service {
                     }
                     SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                             MODE_MULTI_PROCESS);
-//                    Log.d("sp", "start getting sp from service");
+//                    Log.d("sp", "start getting sp from service"); 
 //                    Log.d("sp",
 //                            "startHr" + sp
 //                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
