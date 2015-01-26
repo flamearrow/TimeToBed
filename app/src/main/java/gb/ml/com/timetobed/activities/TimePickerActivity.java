@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import gb.ml.com.timetobed.R;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
-import gb.ml.com.timetobed.services.PoppingService;
+import gb.ml.com.timetobed.services.ShoutingService;
 
 /**
  * Created by ccen on 1/19/15.
@@ -77,7 +77,7 @@ public class TimePickerActivity extends FragmentActivity {
                 .registerReceiver(mEndReceiver, new IntentFilter(LASTTIME));
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mPoppingServiceReceiver, new IntentFilter(
-                        PoppingService.POPPING_DONE));
+                        ShoutingService.POPPING_DONE));
 
     }
 
@@ -123,12 +123,12 @@ public class TimePickerActivity extends FragmentActivity {
         Log.d("sp", "sharedPref updated");
 
         // check if shouting service is up, if not start it
-        final Intent i = new Intent(this, PoppingService.class);
-        ComponentName cn = startService(i);
-        if(cn != null) {
-            Log.d("service", "PoppingService already started: " + cn);
-        } else {
-            Log.d("service", "PoppingService not yet started.");
-        }
+//        final Intent i = new Intent(this, ShoutingService.class);
+//        ComponentName cn = startService(i);
+//        if(cn != null) {
+//            Log.d("service", "ShoutingService already started: " + cn);
+//        } else {
+//            Log.d("service", "ShoutingService not yet started.");
+//        }
     }
 }

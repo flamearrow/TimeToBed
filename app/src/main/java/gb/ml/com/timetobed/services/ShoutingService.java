@@ -46,78 +46,78 @@ public class ShoutingService extends Service {
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        while (true) {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
-                    MODE_MULTI_PROCESS);
-            Log.d("sp", "start getting sp from service");
-            Log.d("sp",
-                    "startHr" + sp
-                            .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
-            Log.d("sp",
-                    "startMin" + sp
-                            .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
-            Log.d("sp",
-                    "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
-            Log.d("sp",
-                    "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
-            Log.d("sp", "end getting sp");
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        final int counter = intent.getIntExtra(COUNT, 0);
+        new Thread() {
+            public void run() {
 
-            mStartHour = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
-            mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
-            mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
-            mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
-            mCount = intent.getIntExtra(COUNT, 0);
+                while (true) {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                            MODE_MULTI_PROCESS);
+                    Log.d("sp", "start getting sp from service");
+                    Log.d("sp",
+                            "startHr" + sp
+                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
+                    Log.d("sp",
+                            "startMin" + sp
+                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
+                    Log.d("sp",
+                            "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
+                    Log.d("sp",
+                            "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
+                    Log.d("sp", "end getting sp");
 
-            Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
-            Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
-            Log.d("popping", "mCount: " + mCount);
+                    mStartHour = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+                    mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+                    mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
+                    mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
+                    mCount = counter;
 
-            Calendar start = Calendar.getInstance();
-            start.set(Calendar.HOUR_OF_DAY, mStartHour);
-            start.set(Calendar.MINUTE, mStartMin);
+                    Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
+                    Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
+                    Log.d("popping", "mCount: " + mCount);
 
-            Calendar end = (Calendar) start.clone();
-            end.add(Calendar.HOUR, mLastHour);
-            end.add(Calendar.MINUTE, mLastMin);
+                    Calendar start = Calendar.getInstance();
+                    start.set(Calendar.HOUR_OF_DAY, mStartHour);
+                    start.set(Calendar.MINUTE, mStartMin);
 
-            Calendar now = Calendar.getInstance();
+                    Calendar end = (Calendar) start.clone();
+                    end.add(Calendar.HOUR, mLastHour);
+                    end.add(Calendar.MINUTE, mLastMin);
 
-            if (now.before(start) || now.after(end)) {
-                Log.d("time", "now" + now + " is out of range");
-            } else {
-                Log.d("time", "now" + now + " is within range");
-            }
+                    Calendar now = Calendar.getInstance();
 
-            while (!(now.before(start) || now.after(end))) {
-                KeyguardManager kgMgr =
-                        (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-                if (kgMgr.inKeyguardRestrictedInputMode()) {
-                    continue;
+                    while (!(now.before(start) || now.after(end))) {
+                        KeyguardManager kgMgr =
+                                (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                        if (kgMgr.inKeyguardRestrictedInputMode()) {
+                            continue;
+                        }
+
+                        shout();
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        now = Calendar.getInstance();
+                    }
+
+                    endPopping();
                 }
-
-                shout();
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                now = Calendar.getInstance();
             }
-
-            endPopping();
-
-        }
+        }.start();
+        return START_STICKY;
     }
 
     private void shout() {
-        Log.d("shout", "begin to shout: " + mCount);
         final String msg = "Go To Bed: " + mCount++ + ", otherwise tomorrow will suck!";
+        Log.d("shout", "begin to shout: " + msg);
         new Handler(getApplicationContext().getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -133,6 +133,7 @@ public class ShoutingService extends Service {
     }
 
     private void endPopping() {
+        Log.d("shout", "shouting end");
         // should clear sharedPf here
         SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                 MODE_MULTI_PROCESS);

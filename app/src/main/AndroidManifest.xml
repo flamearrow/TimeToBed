@@ -22,8 +22,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-        <service android:name=".services.PoppingService" android:process=":popping_process"
-                 android:icon="@drawable/ic_launcher" android:label="@string/popping_service"/>
         <service android:name=".services.ShoutingService" android:enabled="true"
                  android:process=":shouting_process" android:label="@string/shouting_service"/>
     </application>
