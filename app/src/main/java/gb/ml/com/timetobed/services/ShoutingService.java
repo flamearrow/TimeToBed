@@ -52,7 +52,7 @@ public class ShoutingService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
+        Log.d("service", "ShoutingService is destroyed");
         Log.d("service", "flipping SHOUTING from " + isShouting() + " to false");
         setShouting(false);
     }
@@ -66,7 +66,7 @@ public class ShoutingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("service", "flipping SHOUTING from " + isShouting() + " to true");
         setShouting(true);
-        final int counter = intent.getIntExtra(COUNT, 0);
+        final int counter = intent == null ? 0 : intent.getIntExtra(COUNT, 0);
         new Thread() {
             public void run() {
 
@@ -78,7 +78,7 @@ public class ShoutingService extends Service {
                     }
                     SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                             MODE_MULTI_PROCESS);
-//                    Log.d("sp", "start getting sp from service"); 
+//                    Log.d("sp", "start getting sp from service");
 //                    Log.d("sp",
 //                            "startHr" + sp
 //                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
@@ -132,7 +132,7 @@ public class ShoutingService extends Service {
                 }
             }
         }.start();
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void shout() {
@@ -168,30 +168,30 @@ public class ShoutingService extends Service {
                 new Intent(POPPING_DONE));
     }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
-
-        restartServiceIntent
-                .putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
-        restartServiceIntent
-                .putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
-        restartServiceIntent
-                .putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
-        restartServiceIntent
-                .putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
-        restartServiceIntent.putExtra(COUNT, mCount);
-
-        restartServiceIntent.setPackage(getPackageName());
-
-        PendingIntent restartServicePendingIntent = PendingIntent
-                .getService(getApplicationContext(), 1, restartServiceIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
-        // alarm manager allows your application to be executed in the future
-        AlarmManager alarmService = (AlarmManager) getApplicationContext()
-                .getSystemService(Context.ALARM_SERVICE);
-        alarmService.set(
-                AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent);
-    }
+//    @Override
+//    public void onTaskRemoved(Intent rootIntent) {
+//        Intent restartServiceIntent = new Intent(getApplicationContext(), this.getClass());
+//
+//        restartServiceIntent
+//                .putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
+//        restartServiceIntent
+//                .putExtra(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
+//        restartServiceIntent
+//                .putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
+//        restartServiceIntent
+//                .putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
+//        restartServiceIntent.putExtra(COUNT, mCount);
+//
+//        restartServiceIntent.setPackage(getPackageName());
+//
+//        PendingIntent restartServicePendingIntent = PendingIntent
+//                .getService(getApplicationContext(), 1, restartServiceIntent,
+//                        PendingIntent.FLAG_ONE_SHOT);
+//        // alarm manager allows your application to be executed in the future
+//        AlarmManager alarmService = (AlarmManager) getApplicationContext()
+//                .getSystemService(Context.ALARM_SERVICE);
+//        alarmService.set(
+//                AlarmManager.ELAPSED_REALTIME,
+//                SystemClock.elapsedRealtime() + 1000, restartServicePendingIntent);
+//    }
 }

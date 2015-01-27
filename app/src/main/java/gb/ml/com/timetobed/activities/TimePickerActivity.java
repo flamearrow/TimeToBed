@@ -96,6 +96,30 @@ public class TimePickerActivity extends FragmentActivity {
         endTimeTV = (TextView) findViewById(R.id.endTime);
     }
 
+
+    private void clearSharedPref() {
+        SharedPreferences sp = getSharedPreferences(SHAREDPREFNAME, MODE_MULTI_PROCESS);
+        SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
+        spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
+        spEditor.putBoolean("SHOUTING", false);
+        spEditor.commit();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        clearSharedPref();
+        // check if shouting service is up, if not start it
+        Log.d("service", "Shouting: " + isShouting());
+//        if (!isShouting()) {
+            Log.d("service", "Restart shouting service.");
+            startService(new Intent(this, ShoutingService.class));
+//        }
+    }
+
     public void pickStartTime(View v) {
         TimePickerFragment startTPF = new TimePickerFragment();
         startTPF.setStartTimer(true);
@@ -121,12 +145,7 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.commit();
         Log.d("sp", "sharedPref updated");
 
-        // check if shouting service is up, if not start it
-        Log.d("service", "Shouting: " + isShouting());
-        if (!isShouting()) {
-            Log.d("service", "Restart shouting service.");
-            startService(new Intent(this, ShoutingService.class));
-        }
+
     }
 
     private boolean isShouting() {
