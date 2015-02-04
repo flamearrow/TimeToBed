@@ -28,22 +28,6 @@ import gb.ml.com.timetobed.fragments.TimePickerFragment;
  */
 public class ShoutingService extends Service {
 
-    public static String SHOUTING = "SHOUTING";
-
-    public boolean isShouting() {
-        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
-                MODE_MULTI_PROCESS);
-        return sp.getBoolean("SHOUTING", false);
-    }
-
-    public void setShouting(boolean val) {
-        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
-                MODE_MULTI_PROCESS);
-        SharedPreferences.Editor spEditor = sp.edit();
-        spEditor.putBoolean(SHOUTING, val);
-        spEditor.commit();
-    }
-
     private int mStartHour, mStartMin, mLastHour, mLastMin;
 
 
@@ -52,8 +36,6 @@ public class ShoutingService extends Service {
     @Override
     public void onDestroy() {
         Log.d("service", "ShoutingService is destroyed");
-        Log.d("service", "flipping SHOUTING from " + isShouting() + " to false");
-        setShouting(false);
     }
 
     @Override
@@ -63,8 +45,8 @@ public class ShoutingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("service", "flipping SHOUTING from " + isShouting() + " to true");
-        setShouting(true);
+        // Note this is on a separate thread, meaning even ShoutingService is destroyed
+        // this thread will still keep running
         new Thread() {
             public void run() {
 
@@ -76,18 +58,6 @@ public class ShoutingService extends Service {
                     }
                     SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                             MODE_MULTI_PROCESS);
-//                    Log.d("sp", "start getting sp from service");
-//                    Log.d("sp",
-//                            "startHr" + sp
-//                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0));
-//                    Log.d("sp",
-//                            "startMin" + sp
-//                                    .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0));
-//                    Log.d("sp",
-//                            "LastHr" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0));
-//                    Log.d("sp",
-//                            "LastMin" + sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0));
-//                    Log.d("sp", "end getting sp");
 
                     mStartHour = sp
                             .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
@@ -109,6 +79,7 @@ public class ShoutingService extends Service {
                     Calendar now = Calendar.getInstance();
 
                     while (!(now.before(start) || now.after(end))) {
+                        Log.d("popping", "now shouting....");
                         KeyguardManager kgMgr =
                                 (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
                         if (kgMgr.inKeyguardRestrictedInputMode()) {
@@ -122,18 +93,18 @@ public class ShoutingService extends Service {
                             e.printStackTrace();
                         }
                         now = Calendar.getInstance();
+                        Log.d("popping", "now shouting....");
                     }
 
                     endPopping();
                 }
             }
         }.start();
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void shout() {
         final String msg = "Go To the Fucking Bed!!! Otherwise tomorrow will suck!";
-        Log.d("shout", "begin to shout: " + msg);
         new Handler(getApplicationContext().getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -150,6 +121,11 @@ public class ShoutingService extends Service {
 
     private void endPopping() {
         Log.d("shout", "shouting end");
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(
+                new Intent(POPPING_DONE));
+    }
+
+    private void clearSP() {
         // should clear sharedPf here
         SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                 MODE_MULTI_PROCESS);
@@ -160,8 +136,6 @@ public class ShoutingService extends Service {
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
         spEditor.commit();
         Log.d("sp", "sharedPref cleared");
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(
-                new Intent(POPPING_DONE));
     }
 
 //    @Override

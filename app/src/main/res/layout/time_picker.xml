@@ -13,4 +13,6 @@
               android:id="@+id/endTime"/>
     <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/start" android:onClick="updatePref"/>
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/clear_sp" android:onClick="clearSP"/>
 </LinearLayout>

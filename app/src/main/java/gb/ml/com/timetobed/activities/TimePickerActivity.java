@@ -104,20 +104,15 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
-        spEditor.putBoolean("SHOUTING", false);
         spEditor.commit();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        clearSharedPref();
-        // check if shouting service is up, if not start it
-        Log.d("service", "Shouting: " + isShouting());
-//        if (!isShouting()) {
-            Log.d("service", "Restart shouting service.");
-            startService(new Intent(this, ShoutingService.class));
-//        }
+        // TODO: check if shouting service is up, if not start it
+//        Log.d("service", "Restart shouting service.");
+//        startService(new Intent(this, ShoutingService.class));
     }
 
     public void pickStartTime(View v) {
@@ -144,13 +139,9 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
         spEditor.commit();
         Log.d("sp", "sharedPref updated");
-
-
     }
 
-    private boolean isShouting() {
-        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
-                MODE_MULTI_PROCESS);
-        return sp.getBoolean("SHOUTING", false);
+    public void clearSP(View v) {
+        clearSharedPref();
     }
 }
