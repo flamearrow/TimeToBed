@@ -44,9 +44,8 @@ public class ShoutingService extends Service {
         spEditor.commit();
     }
 
-    private int mStartHour, mStartMin, mLastHour, mLastMin, mCount;
+    private int mStartHour, mStartMin, mLastHour, mLastMin;
 
-    public static final String COUNT = "count";
 
     public static final String POPPING_DONE = "popping_done";
 
@@ -66,7 +65,6 @@ public class ShoutingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("service", "flipping SHOUTING from " + isShouting() + " to true");
         setShouting(true);
-        final int counter = intent == null ? 0 : intent.getIntExtra(COUNT, 0);
         new Thread() {
             public void run() {
 
@@ -96,11 +94,9 @@ public class ShoutingService extends Service {
                     mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
                     mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
                     mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
-                    mCount = counter;
 
                     Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
                     Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
-                    Log.d("popping", "mCount: " + mCount);
 
                     Calendar start = Calendar.getInstance();
                     start.set(Calendar.HOUR_OF_DAY, mStartHour);
@@ -136,7 +132,7 @@ public class ShoutingService extends Service {
     }
 
     private void shout() {
-        final String msg = "Go To Bed: " + mCount++ + ", otherwise tomorrow will suck!";
+        final String msg = "Go To the Fucking Bed!!! Otherwise tomorrow will suck!";
         Log.d("shout", "begin to shout: " + msg);
         new Handler(getApplicationContext().getMainLooper()).post(new Runnable() {
             @Override
@@ -180,7 +176,6 @@ public class ShoutingService extends Service {
 //                .putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
 //        restartServiceIntent
 //                .putExtra(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
-//        restartServiceIntent.putExtra(COUNT, mCount);
 //
 //        restartServiceIntent.setPackage(getPackageName());
 //
