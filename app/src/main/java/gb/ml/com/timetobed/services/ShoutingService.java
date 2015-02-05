@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -30,6 +29,7 @@ public class ShoutingService extends Service {
 
     private int mStartHour, mStartMin, mLastHour, mLastMin;
 
+    public static final String POPPING_START = "popping_start";
 
     public static final String POPPING_DONE = "popping_done";
 
@@ -56,29 +56,9 @@ public class ShoutingService extends Service {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
-                            MODE_MULTI_PROCESS);
 
-                    mStartHour = sp
-                            .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
-                    mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
-                    mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
-                    mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
-
-                    Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
-                    Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
-
-                    Calendar start = Calendar.getInstance();
-                    start.set(Calendar.HOUR_OF_DAY, mStartHour);
-                    start.set(Calendar.MINUTE, mStartMin);
-
-                    Calendar end = (Calendar) start.clone();
-                    end.add(Calendar.HOUR, mLastHour);
-                    end.add(Calendar.MINUTE, mLastMin);
-
-                    Calendar now = Calendar.getInstance();
-
-                    while (!(now.before(start) || now.after(end))) {
+                    while (shouldShout()) {
+                        startPopping();
                         Log.d("popping", "now shouting....");
                         KeyguardManager kgMgr =
                                 (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
@@ -92,7 +72,6 @@ public class ShoutingService extends Service {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        now = Calendar.getInstance();
                         Log.d("popping", "now shouting....");
                     }
 
@@ -101,6 +80,31 @@ public class ShoutingService extends Service {
             }
         }.start();
         return START_STICKY;
+    }
+
+    private boolean shouldShout() {
+        SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
+                MODE_MULTI_PROCESS);
+
+        mStartHour = sp
+                .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
+        mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
+        mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
+
+        Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
+        Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
+
+        Calendar start = Calendar.getInstance();
+        start.set(Calendar.HOUR_OF_DAY, mStartHour);
+        start.set(Calendar.MINUTE, mStartMin);
+
+        Calendar end = (Calendar) start.clone();
+        end.add(Calendar.HOUR, mLastHour);
+        end.add(Calendar.MINUTE, mLastMin);
+
+        Calendar now = Calendar.getInstance();
+        return !(now.before(start) || now.after(end));
     }
 
     private void shout() {
@@ -119,10 +123,14 @@ public class ShoutingService extends Service {
         });
     }
 
+    private void startPopping() {
+        Log.d("shout", "shouting started");
+        sendBroadcast(new Intent(POPPING_START));
+    }
+
     private void endPopping() {
         Log.d("shout", "shouting end");
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(
-                new Intent(POPPING_DONE));
+        sendBroadcast(new Intent(POPPING_DONE));
     }
 
     private void clearSP() {

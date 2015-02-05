@@ -34,11 +34,8 @@ public class TimePickerActivity extends FragmentActivity {
     private BroadcastReceiver mStartReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("mlgb", "startTime received!");
             final int hour = intent.getIntExtra(TimePickerFragment.HOUR, 0);
             final int min = intent.getIntExtra(TimePickerFragment.MIN, 0);
-            Log.d("mlgb", "hour: " + hour);
-            Log.d("mlgb", "min: " + min);
             mStartHour = hour;
             mStartMin = min;
             startTimeTV.setText("" + hour + " : " + min);
@@ -49,21 +46,28 @@ public class TimePickerActivity extends FragmentActivity {
     private BroadcastReceiver mEndReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("mlgb", "endTime received!");
             final int hour = intent.getIntExtra(TimePickerFragment.HOUR, 0);
             final int min = intent.getIntExtra(TimePickerFragment.MIN, 0);
-            Log.d("mlgb", "hour: " + hour);
-            Log.d("mlgb", "min: " + min);
             mLastHour = hour;
             mLastMin = min;
             endTimeTV.setText("" + hour + " : " + min);
         }
     };
 
-    private BroadcastReceiver mPoppingServiceReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mShoutingStartReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("popping", "popping done");
+            Log.d("broadcast", "popping started");
+            Intent startIntent = new Intent(context, IdleActivity.class);
+            startIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(startIntent);
+        }
+    };
+
+    private BroadcastReceiver mShoutingEndReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("broadcast", "popping done");
         }
     };
 
@@ -74,10 +78,10 @@ public class TimePickerActivity extends FragmentActivity {
                 .registerReceiver(mStartReceiver, new IntentFilter(STARTTIME));
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mEndReceiver, new IntentFilter(LASTTIME));
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(mPoppingServiceReceiver, new IntentFilter(
-                        ShoutingService.POPPING_DONE));
-
+        registerReceiver(mShoutingEndReceiver, new IntentFilter(
+                ShoutingService.POPPING_DONE));
+        registerReceiver(mShoutingStartReceiver, new IntentFilter(
+                ShoutingService.POPPING_START));
     }
 
     @Override
@@ -85,7 +89,8 @@ public class TimePickerActivity extends FragmentActivity {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mStartReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mEndReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mPoppingServiceReceiver);
+        unregisterReceiver(mShoutingEndReceiver);
+        unregisterReceiver(mShoutingStartReceiver);
     }
 
     @Override
@@ -143,5 +148,9 @@ public class TimePickerActivity extends FragmentActivity {
 
     public void clearSP(View v) {
         clearSharedPref();
+    }
+
+    public void startSvc(View v) {
+        startService(new Intent(this, ShoutingService.class));
     }
 }
