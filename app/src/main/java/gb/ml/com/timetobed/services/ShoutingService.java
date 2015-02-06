@@ -27,8 +27,6 @@ import gb.ml.com.timetobed.fragments.TimePickerFragment;
  */
 public class ShoutingService extends Service {
 
-    private int mStartHour, mStartMin, mLastHour, mLastMin;
-
     public static final String POPPING_START = "popping_start";
 
     public static final String POPPING_DONE = "popping_done";
@@ -85,17 +83,24 @@ public class ShoutingService extends Service {
     private boolean shouldShout() {
         SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                 MODE_MULTI_PROCESS);
-
-        mStartHour = sp
+        int mStartYear = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.YEAR, 0);
+        int mStartMonth = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MONTH, 0);
+        int mStartDay = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.DAY, 0);
+        int mStartHour = sp
                 .getInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
-        mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
-        mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
-        mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
-
+        int mStartMin = sp.getInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
+        int mLastHour = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
+        int mLastMin = sp.getInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
+        Log.d("popping",
+                "mStartYear: " + mStartYear + ", mStartMonth: " + mStartMonth + ", mStartDay: "
+                        + mStartDay);
         Log.d("popping", "startHour: " + mStartHour + ", startMin: " + mStartMin);
         Log.d("popping", "lastHour: " + mLastHour + ", lastMin: " + mLastMin);
 
         Calendar start = Calendar.getInstance();
+        start.set(Calendar.YEAR, mStartYear);
+        start.set(Calendar.MONTH, mStartMonth);
+        start.set(Calendar.DAY_OF_MONTH, mStartDay);
         start.set(Calendar.HOUR_OF_DAY, mStartHour);
         start.set(Calendar.MINUTE, mStartMin);
 
@@ -138,6 +143,9 @@ public class ShoutingService extends Service {
         SharedPreferences sp = getSharedPreferences(TimePickerActivity.SHAREDPREFNAME,
                 MODE_MULTI_PROCESS);
         SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.YEAR, 0);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MONTH, 0);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.DAY, 0);
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);

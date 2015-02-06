@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 import gb.ml.com.timetobed.R;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
 import gb.ml.com.timetobed.services.ShoutingService;
@@ -105,11 +107,15 @@ public class TimePickerActivity extends FragmentActivity {
     private void clearSharedPref() {
         SharedPreferences sp = getSharedPreferences(SHAREDPREFNAME, MODE_MULTI_PROCESS);
         SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.YEAR, 0);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MONTH, 0);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.DAY, 0);
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, 0);
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
         spEditor.commit();
+        Log.d("sp", "shared preference cleared!");
     }
 
     @Override
@@ -134,10 +140,18 @@ public class TimePickerActivity extends FragmentActivity {
     }
 
     public void updatePref(View v) {
+        Calendar c = Calendar.getInstance();
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+        Log.d("sp", "mStartYear: " + mYear + ", mStartMonth: " + mMonth + ", mStartDay: " + mDay);
         Log.d("sp", "mStartHour: " + mStartHour + ", mStartMin: " + mStartMin);
         Log.d("sp", "mLastHour: " + mLastHour + ", mLastMin: " + mLastMin);
         SharedPreferences sp = getSharedPreferences(SHAREDPREFNAME, MODE_MULTI_PROCESS);
         SharedPreferences.Editor spEditor = sp.edit();
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.YEAR, mYear);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MONTH, mMonth);
+        spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.DAY, mDay);
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.HOUR, mStartHour);
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
