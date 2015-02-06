@@ -34,6 +34,8 @@ public class ShoutingService extends Service {
     @Override
     public void onDestroy() {
         Log.d("service", "ShoutingService is destroyed");
+        Log.d("service", "Restart shouting service.");
+        startService(new Intent(this, ShoutingService.class));
     }
 
     @Override
