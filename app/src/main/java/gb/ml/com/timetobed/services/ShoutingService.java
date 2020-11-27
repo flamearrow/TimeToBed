@@ -1,15 +1,12 @@
 package gb.ml.com.timetobed.services;
 
-import android.app.AlarmManager;
 import android.app.KeyguardManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -38,6 +35,13 @@ public class ShoutingService extends Service {
         startService(new Intent(this, ShoutingService.class));
     }
 
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("BGLM", "Shouting service created");
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -47,6 +51,7 @@ public class ShoutingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Note this is on a separate thread, meaning even ShoutingService is destroyed
         // this thread will still keep running
+        Log.d("BGLM", "Shouting service onStartCommand");
         new Thread() {
             public void run() {
 

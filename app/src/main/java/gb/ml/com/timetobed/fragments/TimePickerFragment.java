@@ -5,11 +5,11 @@ import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import gb.ml.com.timetobed.activities.TimePickerActivity;
 
 /**

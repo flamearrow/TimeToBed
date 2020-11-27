@@ -6,14 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import java.util.Calendar;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import gb.ml.com.timetobed.R;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
 import gb.ml.com.timetobed.services.ShoutingService;
@@ -114,7 +114,7 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, 0);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, 0);
-        spEditor.commit();
+        spEditor.apply();
         Log.d("sp", "shared preference cleared!");
     }
 
@@ -156,7 +156,7 @@ public class TimePickerActivity extends FragmentActivity {
         spEditor.putInt(TimePickerActivity.STARTTIME + TimePickerFragment.MIN, mStartMin);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.HOUR, mLastHour);
         spEditor.putInt(TimePickerActivity.LASTTIME + TimePickerFragment.MIN, mLastMin);
-        spEditor.commit();
+        spEditor.apply();
         Log.d("sp", "sharedPref updated");
     }
 
