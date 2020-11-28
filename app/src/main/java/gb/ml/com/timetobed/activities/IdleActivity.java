@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import gb.ml.com.timetobed.R;
-import gb.ml.com.timetobed.services.ShoutingService;
+import gb.ml.com.timetobed.services.LocalShoutingService;
 
 /**
  * Created by ccen on 2/4/15.
@@ -37,7 +37,7 @@ public class IdleActivity extends Activity {
     protected void onResume() {
         super.onResume();
         registerReceiver(mShoutingEndReceiver, new IntentFilter(
-                ShoutingService.POPPING_DONE));
+                LocalShoutingService.POPPING_DONE));
     }
 
     @Override

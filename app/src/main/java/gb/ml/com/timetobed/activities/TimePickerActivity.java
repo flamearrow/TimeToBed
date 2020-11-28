@@ -15,6 +15,9 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.ml.gb.aidlserver.IShoutingService;
 
 import java.util.Calendar;
 
@@ -22,7 +25,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import gb.ml.com.timetobed.R;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
-import gb.ml.com.timetobed.services.ShoutingService;
+import gb.ml.com.timetobed.services.LocalShoutingService;
 
 /**
  * Created by ccen on 1/19/15.
@@ -88,9 +91,9 @@ public class TimePickerActivity extends FragmentActivity {
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(mEndReceiver, new IntentFilter(LASTTIME));
         registerReceiver(mShoutingEndReceiver, new IntentFilter(
-                ShoutingService.POPPING_DONE));
+                LocalShoutingService.POPPING_DONE));
         registerReceiver(mShoutingStartReceiver, new IntentFilter(
-                ShoutingService.POPPING_START));
+                LocalShoutingService.POPPING_START));
     }
 
     @Override
@@ -172,54 +175,89 @@ public class TimePickerActivity extends FragmentActivity {
     }
 
 
-    //    private ShoutingService shoutingService;
+    // local messenger and connection
     private Messenger messenger;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            // downcast because we know what we're doing
-//            ShoutingService.ShoutingBinder binding = (ShoutingService.ShoutingBinder) service;
-//            shoutingService = binding.getService();
             messenger = new Messenger(service);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-//            shoutingService = null;
             messenger = null;
         }
     };
 
+
+    // bind to a local service
     public void startSvc(View v) {
         // not bind
         // startService(new Intent(this, ShoutingService.class));
 
         // bind, need to pass a ServiceConnection object that accespts the result
-        bindService(new Intent(this, ShoutingService.class), connection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, LocalShoutingService.class), connection,
+                Context.BIND_AUTO_CREATE);
     }
 
     public void callService(View v) {
         if (messenger != null) {
             try {
-                messenger.send(Message.obtain(null, ShoutingService.WHAT_SHOUT));
+                messenger.send(Message.obtain(null, LocalShoutingService.WHAT_SHOUT));
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         } else {
             Log.d("BGLM", "no messenger");
         }
-//        if (shoutingService == null) {
-//            Log.d("BGLM", "no shouting service");
-//        } else {
-//            shoutingService.shout();
-//            Log.d("BGLM", "random number from service: " + shoutingService.getRandomNumber());
-//        }
+    }
+
+
+    // Remove service and connection
+    private IShoutingService iShoutingService;
+    private final ServiceConnection aidlConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // similar to downcast, but the generated code has a dedicated method
+            iShoutingService = IShoutingService.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+            Log.d("BGLM", "iShouting service disconnected");
+            iShoutingService = null;
+        }
+    };
+
+    // bind to a remote aidl service
+    public void startAidlSvc(View v) {
+        Log.d("BGLM", "start remote service");
+        Intent intent = new Intent(IShoutingService.ACTION);
+        intent.setPackage("com.ml.gb.aidlserver");
+        bindService(intent, aidlConnection, Context.BIND_AUTO_CREATE);
+
+    }
+
+    public void callAidlService(View v) {
+        if (iShoutingService != null) {
+            try {
+                Log.d("BGLM", "iShouting at process" + iShoutingService.getPid());
+                Toast.makeText(this,
+                        iShoutingService.shout(IShoutingService.SHOUT_0),
+                        Toast.LENGTH_SHORT).show();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.d("BGLM", "no iShoutingService");
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unbindService(connection);
-//        shoutingService = null;
+        unbindService(aidlConnection);
     }
 }

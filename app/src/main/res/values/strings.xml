@@ -14,4 +14,6 @@
     <string name="start">Start</string>
     <string name="popping_service">popping service</string>
     <string name="shouting_service">shouting service</string>
+    <string name="startAidlSvc">startAidlService</string>
+    <string name="callAidlSvc">callAidlService</string>
 </resources>

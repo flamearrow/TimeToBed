@@ -40,6 +40,19 @@
         android:onClick="callService"
         android:text="@string/callSvc" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startAidlSvc"
+        android:text="@string/startAidlSvc" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="callAidlService"
+        android:text="@string/callAidlSvc" />
+
+
     <TextView
         android:id="@+id/startTime"
         android:layout_width="fill_parent"

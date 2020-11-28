@@ -29,7 +29,7 @@ import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 /**
  * Created by ccen on 1/24/15.
  */
-public class ShoutingService extends Service {
+public class LocalShoutingService extends Service {
 
     public static final String POPPING_START = "popping_start";
 
@@ -43,8 +43,8 @@ public class ShoutingService extends Service {
     private final IBinder binder = new ShoutingBinder();
 
     public class ShoutingBinder extends Binder {
-        public ShoutingService getService() {
-            return ShoutingService.this;
+        public LocalShoutingService getService() {
+            return LocalShoutingService.this;
         }
     }
 
@@ -66,6 +66,7 @@ public class ShoutingService extends Service {
     public int getRandomNumber() {
         return new Random().nextInt();
     }
+
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(@NonNull Looper looper) {
