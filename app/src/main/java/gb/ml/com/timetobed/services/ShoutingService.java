@@ -1,12 +1,14 @@
 package gb.ml.com.timetobed.services;
 
-import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -16,8 +18,11 @@ import android.widget.Toast;
 import java.util.Calendar;
 import java.util.Random;
 
+import androidx.annotation.NonNull;
 import gb.ml.com.timetobed.activities.TimePickerActivity;
 import gb.ml.com.timetobed.fragments.TimePickerFragment;
+
+import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
 
 /**
  * Created by ccen on 1/24/15.
@@ -28,18 +33,68 @@ public class ShoutingService extends Service {
 
     public static final String POPPING_DONE = "popping_done";
 
+    private static final int WHAT_SHOUT = 1;
+    private static final int WHAT_LOG_START_ID = 1 << 1;
+
+    private ServiceHandler serviceHandler;
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(@NonNull Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what) {
+                case WHAT_SHOUT: {
+                    shout();
+                    break;
+                }
+                case WHAT_LOG_START_ID: {
+                    logStartId(msg.arg1);
+                    break;
+                }
+            }
+
+        }
+
+        private void logStartId(int startId) {
+            Log.d("BGLM", "handling new message with startId: " + startId);
+        }
+
+
+        private void shout() {
+            post(() -> {
+                // off of main
+                Toast t = Toast.makeText(getApplicationContext(), "Go To the Fucking Bed!!! " +
+                        "Otherwise tomorrow will suck!", Toast.LENGTH_SHORT);
+                Display display = ((WindowManager) getApplicationContext().getSystemService(
+                        Context.WINDOW_SERVICE)).getDefaultDisplay();
+                Random r = new Random();
+                int yOffset = (int) (r.nextFloat() * display.getHeight());
+                t.setGravity(Gravity.TOP | Gravity.CENTER, 0, yOffset);
+                t.show();
+            });
+
+        }
+    }
+
     @Override
     public void onDestroy() {
         Log.d("service", "ShoutingService is destroyed");
-        Log.d("service", "Restart shouting service.");
-        startService(new Intent(this, ShoutingService.class));
+//        Log.d("service", "Restart shouting service.");
+//        startService(new Intent(this, ShoutingService.class));
     }
 
 
     @Override
     public void onCreate() {
-        super.onCreate();
-        Log.d("BGLM", "Shouting service created");
+        HandlerThread thread =
+                new HandlerThread("ServiceArguments", THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+
+        Looper serviceLooper = thread.getLooper();
+        serviceHandler = new ServiceHandler(serviceLooper);
     }
 
     @Override
@@ -49,42 +104,52 @@ public class ShoutingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // create and send a new message encapsulating 'startId'
+
+        Message msg;
+        if (startId % 2 == 0) {
+            msg = serviceHandler.obtainMessage(WHAT_SHOUT);
+        } else {
+            msg = serviceHandler.obtainMessage(WHAT_LOG_START_ID);
+            msg.arg1 = startId;
+        }
+        serviceHandler.sendMessage(msg);
         // Note this is on a separate thread, meaning even ShoutingService is destroyed
         // this thread will still keep running
-        Log.d("BGLM", "Shouting service onStartCommand");
-        new Thread() {
-            public void run() {
 
-                while (true) {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    while (shouldShout()) {
-                        startPopping();
-                        Log.d("popping", "now shouting....");
-                        KeyguardManager kgMgr =
-                                (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-                        if (kgMgr.inKeyguardRestrictedInputMode()) {
-                            continue;
-                        }
-
-                        shout();
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Log.d("popping", "now shouting....");
-                    }
-
-                    endPopping();
-                }
-            }
-        }.start();
-        return START_STICKY;
+//        new Thread() {
+//            public void run() {
+//
+//                while (true) {
+//                    try {
+//                        Thread.sleep(5000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    while (shouldShout()) {
+//                        startPopping();
+//                        Log.d("popping", "now shouting....");
+//                        KeyguardManager kgMgr =
+//                                (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+//                        if (kgMgr.inKeyguardRestrictedInputMode()) {
+//                            continue;
+//                        }
+//
+//                        shout();
+//                        try {
+//                            Thread.sleep(2000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        Log.d("popping", "now shouting....");
+//                    }
+//
+//                    endPopping();
+//                }
+//            }
+//        }.start();
+        return START_NOT_STICKY;
     }
 
     private boolean shouldShout() {
@@ -119,21 +184,6 @@ public class ShoutingService extends Service {
         return !(now.before(start) || now.after(end));
     }
 
-    private void shout() {
-        final String msg = "Go To the Fucking Bed!!! Otherwise tomorrow will suck!";
-        new Handler(getApplicationContext().getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast t = Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT);
-                Display display = ((WindowManager) getApplicationContext().getSystemService(
-                        Context.WINDOW_SERVICE)).getDefaultDisplay();
-                Random r = new Random();
-                int yOffset = (int) (r.nextFloat() * display.getHeight());
-                t.setGravity(Gravity.TOP | Gravity.CENTER, 0, yOffset);
-                t.show();
-            }
-        });
-    }
 
     private void startPopping() {
         Log.d("shout", "shouting started");
