@@ -10,6 +10,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -34,7 +35,7 @@ public class ShoutingService extends Service {
 
     public static final String POPPING_DONE = "popping_done";
 
-    private static final int WHAT_SHOUT = 1;
+    public static final int WHAT_SHOUT = 1;
     private static final int WHAT_LOG_START_ID = 1 << 1;
 
     private ServiceHandler serviceHandler;
@@ -114,21 +115,23 @@ public class ShoutingService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return binder;
+//        return binder;
+        Messenger messenger = new Messenger(serviceHandler);
+        return messenger.getBinder();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // create and send a new message encapsulating 'startId'
 
-        Message msg;
-        if (startId % 2 == 0) {
-            msg = serviceHandler.obtainMessage(WHAT_SHOUT);
-        } else {
-            msg = serviceHandler.obtainMessage(WHAT_LOG_START_ID);
-            msg.arg1 = startId;
-        }
-        serviceHandler.sendMessage(msg);
+//        Message msg;
+//        if (startId % 2 == 0) {
+//            msg = serviceHandler.obtainMessage(WHAT_SHOUT);
+//        } else {
+//            msg = serviceHandler.obtainMessage(WHAT_LOG_START_ID);
+//            msg.arg1 = startId;
+//        }
+//        serviceHandler.sendMessage(msg);
         // Note this is on a separate thread, meaning even ShoutingService is destroyed
         // this thread will still keep running
 

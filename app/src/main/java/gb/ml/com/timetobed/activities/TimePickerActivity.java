@@ -9,6 +9,9 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -35,6 +38,7 @@ public class TimePickerActivity extends FragmentActivity {
     private int mStartHour, mStartMin, mLastHour, mLastMin;
 
     public static String SHAREDPREFNAME = "TimeToBedSharedPref";
+
 
     private BroadcastReceiver mStartReceiver = new BroadcastReceiver() {
         @Override
@@ -168,18 +172,21 @@ public class TimePickerActivity extends FragmentActivity {
     }
 
 
-    private ShoutingService shoutingService;
+    //    private ShoutingService shoutingService;
+    private Messenger messenger;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // downcast because we know what we're doing
-            ShoutingService.ShoutingBinder binding = (ShoutingService.ShoutingBinder) service;
-            shoutingService = binding.getService();
+//            ShoutingService.ShoutingBinder binding = (ShoutingService.ShoutingBinder) service;
+//            shoutingService = binding.getService();
+            messenger = new Messenger(service);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            shoutingService = null;
+//            shoutingService = null;
+            messenger = null;
         }
     };
 
@@ -192,18 +199,27 @@ public class TimePickerActivity extends FragmentActivity {
     }
 
     public void callService(View v) {
-        if (shoutingService == null) {
-            Log.d("BGLM", "no shouting service");
+        if (messenger != null) {
+            try {
+                messenger.send(Message.obtain(null, ShoutingService.WHAT_SHOUT));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else {
-            shoutingService.shout();
-            Log.d("BGLM", "random number from service: " + shoutingService.getRandomNumber());
+            Log.d("BGLM", "no messenger");
         }
+//        if (shoutingService == null) {
+//            Log.d("BGLM", "no shouting service");
+//        } else {
+//            shoutingService.shout();
+//            Log.d("BGLM", "random number from service: " + shoutingService.getRandomNumber());
+//        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         unbindService(connection);
-        shoutingService = null;
+//        shoutingService = null;
     }
 }
