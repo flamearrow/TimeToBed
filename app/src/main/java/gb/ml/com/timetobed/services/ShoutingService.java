@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -38,6 +39,33 @@ public class ShoutingService extends Service {
 
     private ServiceHandler serviceHandler;
 
+    private final IBinder binder = new ShoutingBinder();
+
+    public class ShoutingBinder extends Binder {
+        public ShoutingService getService() {
+            return ShoutingService.this;
+        }
+    }
+
+    // Some sample public methods for client to call
+    public void shout() {
+        serviceHandler.post(() -> {
+            // off of main
+            Toast t = Toast.makeText(getApplicationContext(), "Go To the Fucking Bed!!! " +
+                    "Otherwise tomorrow will suck!", Toast.LENGTH_SHORT);
+            Display display = ((WindowManager) getApplicationContext().getSystemService(
+                    Context.WINDOW_SERVICE)).getDefaultDisplay();
+            Random r = new Random();
+            int yOffset = (int) (r.nextFloat() * display.getHeight());
+            t.setGravity(Gravity.TOP | Gravity.CENTER, 0, yOffset);
+            t.show();
+        });
+    }
+
+    public int getRandomNumber() {
+        return new Random().nextInt();
+    }
+
     private final class ServiceHandler extends Handler {
         public ServiceHandler(@NonNull Looper looper) {
             super(looper);
@@ -63,21 +91,8 @@ public class ShoutingService extends Service {
         }
 
 
-        private void shout() {
-            post(() -> {
-                // off of main
-                Toast t = Toast.makeText(getApplicationContext(), "Go To the Fucking Bed!!! " +
-                        "Otherwise tomorrow will suck!", Toast.LENGTH_SHORT);
-                Display display = ((WindowManager) getApplicationContext().getSystemService(
-                        Context.WINDOW_SERVICE)).getDefaultDisplay();
-                Random r = new Random();
-                int yOffset = (int) (r.nextFloat() * display.getHeight());
-                t.setGravity(Gravity.TOP | Gravity.CENTER, 0, yOffset);
-                t.show();
-            });
-
-        }
     }
+
 
     @Override
     public void onDestroy() {
@@ -99,7 +114,7 @@ public class ShoutingService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override

@@ -10,6 +10,7 @@
     <string name="last_time">Lasts</string>
     <string name="clear_sp">Clear SP</string>
     <string name="startSvc">Start Service</string>
+    <string name="callSvc">call service</string>
     <string name="start">Start</string>
     <string name="popping_service">popping service</string>
     <string name="shouting_service">shouting service</string>

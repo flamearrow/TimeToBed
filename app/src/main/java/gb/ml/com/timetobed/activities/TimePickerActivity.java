@@ -1,11 +1,14 @@
 package gb.ml.com.timetobed.activities;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -164,7 +167,43 @@ public class TimePickerActivity extends FragmentActivity {
         clearSharedPref();
     }
 
+
+    private ShoutingService shoutingService;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // downcast because we know what we're doing
+            ShoutingService.ShoutingBinder binding = (ShoutingService.ShoutingBinder) service;
+            shoutingService = binding.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            shoutingService = null;
+        }
+    };
+
     public void startSvc(View v) {
-        startService(new Intent(this, ShoutingService.class));
+        // not bind
+        // startService(new Intent(this, ShoutingService.class));
+
+        // bind, need to pass a ServiceConnection object that accespts the result
+        bindService(new Intent(this, ShoutingService.class), connection, Context.BIND_AUTO_CREATE);
+    }
+
+    public void callService(View v) {
+        if (shoutingService == null) {
+            Log.d("BGLM", "no shouting service");
+        } else {
+            shoutingService.shout();
+            Log.d("BGLM", "random number from service: " + shoutingService.getRandomNumber());
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(connection);
+        shoutingService = null;
     }
 }

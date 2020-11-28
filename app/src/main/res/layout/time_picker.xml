@@ -1,20 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/start_time" android:onClick="pickStartTime"/>
-    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-              android:id="@+id/startTime"/>
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/last_time" android:onClick="pickLastTime"/>
-    <TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-              android:id="@+id/endTime"/>
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/start" android:onClick="updatePref"/>
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/clear_sp" android:onClick="clearSP"/>
-    <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/startSvc" android:onClick="startSvc"/>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="pickStartTime"
+        android:text="@string/start_time" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="pickLastTime"
+        android:text="@string/last_time" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="updatePref"
+        android:text="@string/start" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="clearSP"
+        android:text="@string/clear_sp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startSvc"
+        android:text="@string/startSvc" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="callService"
+        android:text="@string/callSvc" />
+
+    <TextView
+        android:id="@+id/startTime"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/endTime"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
